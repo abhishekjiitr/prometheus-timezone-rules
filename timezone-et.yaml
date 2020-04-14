@@ -1,0 +1,42 @@
+groups:
+- name: utility-timezone-et
+  rules:
+  - record: utility:last_sunday
+    expr: day_of_month() - day_of_week()
+  # https://en.wikipedia.org/wiki/Eastern_Time_Zone
+  # EDT begins at 06:00 UTC on the second Sunday of March and ends at 05:00 UTC on the first Sunday of November.
+  # Conditions for summer:
+  # 1. April to October inclusive
+  # 2. March, days after second Sunday
+  # 3. Nov, days till first Sunday
+  # 4. March, Second Sunday from 06:00 UTC & Nov, First Sunday till 05:00 UTC
+  - record: utility:is_daylight_et
+    expr: (vector(1) and (month() > 3 and month() < 11))
+          or
+          (vector(1) and (month() == 3 and (utility:last_sunday - 7) >= 0 and ((utility:last_sunday - 14) > 0 or absent(day_of_week() == 0))))
+          or
+          (vector(1) and (month() == 11 and utility:last_sunday < 0 and (absent(day_of_week() == 0))))
+          or
+          (
+            vector(1)
+              and
+            (
+              (month() == 3 and hour() >= 6 and ((utility:last_sunday - 7) >= 0 and (utility:last_sunday - 14) <= 0))
+                  or
+              (month() == 11 and hour() < 5 and (utility:last_sunday - 7) < 0)
+            )
+              and
+            (day_of_week() == 0)
+          )
+          or
+          vector(0)
+  - record: utility:time_et
+    expr: time() - (3600 * 5) + 3600 * utility:is_daylight_et
+  - record: utility:hour_et
+    expr: hour(utility:time_et)
+  - record: utility:minute_et
+    expr: minute(utility:time_et)
+  - record: utility:day_of_week_et
+    expr: day_of_week(utility:time_et)
+  - record: utility:is_weekday_et
+    expr: (vector(1) and (utility:day_of_week_et > 0) and (utility:day_of_week_et < 6)) or vector(0)
