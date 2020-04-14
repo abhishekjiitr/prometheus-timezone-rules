@@ -1,0 +1,15 @@
+groups:
+- name: utility-timezone-ist
+  rules:
+  # Indian Standard Time is 5 hours and 30 minutes ahead of Greenwich Mean Time
+  - record: utility:time_ist
+    expr: time() + (3600 * 5.5)
+  - record: utility:hour_ist
+    expr: hour(utility:time_ist)
+  - record: utility:minute_ist
+    expr: minute(utility:time_ist)
+  - record: utility:day_of_week_ist
+    expr: day_of_week(utility:time_ist)
+  - record: utility:is_weekday_ist
+    expr: (vector(1) and (utility:day_of_week_ist > 0) and (utility:day_of_week_ist < 6)) or vector(0)
+
