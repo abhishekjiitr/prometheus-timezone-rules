@@ -1,5 +1,5 @@
 # prometheus-timezone-rules
-Proemtheus recording rules for time related metrics in multiple timezones, incorporating daylight savings
+Prometheus recording rules for time related metrics in multiple timezones, incorporating daylight savings
 
 The metrics include the following time zones:
 1. GMT (by default included with prometheus)
